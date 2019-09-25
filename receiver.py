@@ -9,7 +9,7 @@ import select
 
 localIP = 'localhost'
 timeout = 3
-max_packet_size = 32780
+max_packet_size = 33000
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -25,12 +25,15 @@ def main() :
          print('File name : ' + data.decode())
          file_name = data.strip()
 
+      count = 1
       while True:
-        ready = select.select([sock], [], [], timeout)
-        if ready[0]:
+
+         ready = select.select([sock], [], [], timeout)
+         if ready[0]:
             data, addr = sock.recvfrom(max_packet_size)
-            f.write(data.decode())
-        else:
+            f.write(str(count))
+            count += 1
+         else:
             print(file_name.decode() + ' Finish')
             break
          

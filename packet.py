@@ -5,11 +5,11 @@
 
 class Packet :
 
-    def __init__(self, p_id, p_type, p_seq, p_length, p_checksum, p_data) :
+    def __init__(self, p_id, p_type, p_seq, p_data) :
         self.p_id = p_id
         self.p_seq = p_seq
-        self.p_length = p_length
-        self.p_data = p_data
+        self.p_data = p_data.encode()
+        self.p_length = len(p_data)
 
         # Assign p_type sesuai dengan type packet
         if (p_type == 'DATA') :
@@ -21,16 +21,46 @@ class Packet :
         elif (p_type == 'FIN-ACK') :
             self.p_type = 0x3
         
-        # Assign p_checksum dengan passing parameter ke fungsi checksum
-        self.p_checksum = self.checksum()
+        # Parse input ke dalam diagram
+        self.diagram = self.parseAndChecksum()
     
     def printPacket(self) :
         print('Packet ID : ' + str(self.p_id))
         print('Packet Type : ' + str(self.p_type))
         print('Packet sequenceNumber : ' + str(self.p_seq))
         print('Packet Length : ' + str(self.p_length))
-        print('Packet Checksum : ' + str(self.p_checksum))
-        print('Packet Data : ' + self.p_data)
+        print('Packet Data : ' + self.p_data.decode())
+
+    def printDiagram(self) :
+        print(self.diagram)
     
-    def checksum(self) :
-        return 0x01
+    def parseAndChecksum(self) :
+        max_size_packet = 33000
+        diagram = bytearray(max_size_packet)
+
+        diagram[0] = (self.p_type << 4) & 15 + self.p_id # TYPE dan ID
+        diagram[1] = (self.p_seq >> 8 ) & 255 # SEQUENCE NUMBER
+        diagram[2] = self.p_seq & 255 # SEQUENCE NUMBER
+        diagram[3] = (self.p_length >> 8) & 255 # CHECKSUM
+        diagram[4] = self.p_length & 255 # CHECKSUM
+
+        i = 7
+        for b in self.p_data :
+            diagram[i] = b
+            i+=1
+        
+        sumEven = 0
+        sumOdd = 0
+        for i in range(7,max_size_packet) :
+            if (i%2 == 0) :
+                sumEven = sumEven ^ diagram[i]
+            else :
+                sumOdd = sumOdd ^ diagram[i]
+        
+        diagram[5] = diagram[1] ^ diagram[3] ^ sumEven
+        diagram[6] = diagram[0] ^ diagram[2] ^ diagram[4] ^ sumOdd
+
+        return diagram
+
+    def getDiagram(self) :
+        return self.diagram

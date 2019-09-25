@@ -6,10 +6,11 @@
 import socket
 import sys
 import time
+from packet import Packet
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 max_data_size = 32768
-max_packet_size = 32780 # max_data_size + 2 checksum + 2 length + 2 sequence number + 0.5 type + 0.5 ID + 5 error
+max_packet_size = 33000 # max_data_size + 2 checksum + 2 length + 2 sequence number + 0.5 type + 0.5 ID + x error
 
 def main() :
     recv_ip = input("Masukkan IP dari address yang dituju : ")
@@ -22,13 +23,14 @@ def main() :
 
     f = open(file_name,'r')
     data = f.read(max_data_size)
+    idx = 1
 
     while(data) :
-        if (sock.sendto(data.encode(),(recv_ip.encode(),int(recv_port)))) :
+        p = Packet(idx, 'DATA', 3, data)
+        if (sock.sendto(p.getDiagram(),(recv_ip.encode(),int(recv_port)))) :
             data = f.read(max_data_size)
             time.sleep(0.02)
 
-    print(data)
     sock.close()
     f.close()
 
