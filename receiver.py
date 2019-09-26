@@ -39,7 +39,7 @@ def checkSum(list):
    return (checkEven, checkOdd == list[6], list[7])
 
 # Fungsi receiveData()
-def receiveData():
+def main():
    
    # Create UDP socket
    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -61,13 +61,15 @@ def receiveData():
          print('File ke ' + str(data[0]))
 
       if checkSum(data) :
-         ack = Packet(data[0], 'ACK', seqVal, ''.encode())
-         sock.sendto(ack.getDiagram(),addr)
+         if data[1] == 0 :
+            ack = Packet(data[0], 'ACK', seqVal, ''.encode())
+            sock.sendto(ack.getDiagram(),addr)
+         elif data[1] == 2 :
+            ack = Packet(data[0], 'ACK', seqVal, ''.encode())
+            sock.sendto(ack.getDiagram(),addr)
+            f.close()
+            break
 
-   f.close()
-
-def main():
-    res = receiveData()
 
 if __name__ == "__main__":
     main()

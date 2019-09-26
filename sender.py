@@ -68,27 +68,37 @@ def sendData():
 
     # Send file_name to receiver
     # TODO : create progress bar
-    for file_name in filename :
+    for j in range(len(filename)) :
         seq = 1
-        with open(file_name,'rb') as f :
+        with open(filename[j],'rb') as f :
             data = f.read(max_data_size)
 
+            arr = []
+            arr.append(filename[j].split('.')[0].encode())
             while(data) :
+                arr.append(data)
+                data = f.read(max_data_size)
+
+            for i in range(len(arr)) :
                 if (seq == 1) :
-                    dataRcv = Packet(idx,'DATA',seq,file_name.split('.')[0].encode())
+                    dataRcv = Packet(idx,'DATA',seq,arr[i])
                     sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                     ack, addr = sock.recvfrom(max_packet_size)
                     seq = seq + 1
                 else :
-                    dataRcv = Packet(idx,'DATA',seq,data)
-                    sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
-                    ack, addr = sock.recvfrom(max_packet_size)
-                    if (ack[1] == 0x1) :
-                        print('ACK from packet ' + str(ack[0]) + ' received')
-                        data = f.read(max_data_size)
-                        seq = seq + 1
+                    if (j == len(filename)-1 and i == len(arr)-1) :
+                        dataRcv = Packet(idx,'FIN',seq,arr[i])
+                        sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                        ack, addr = sock.recvfrom(max_packet_size)
+                        if (ack[1] == 0x3) :
+                            print('FIN-ACK from packet ' + str(ack[0]) + ' received')
                     else :
-                        print('kontol')
+                        dataRcv = Packet(idx,'DATA',seq,arr[i])
+                        sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                        ack, addr = sock.recvfrom(max_packet_size)
+                        if (ack[1] == 0x1) :
+                            print('ACK from packet ' + str(ack[0]) + ' received')
+                            seq = seq + 1
             
         f.close()
         idx = idx + 1
@@ -98,3 +108,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
