@@ -57,6 +57,18 @@ def parseDiagram(list):
 
     return p_id, p_type, p_seq, p_length, p_data, p_checksum
 
+
+def progress(count, total, status=''):
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '█' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write(' %s %s%s %s\r' % (bar, percents, '%', status))
+    sys.stdout.flush()
+
+
 # Fungsi sendData
 def sendData():
 
@@ -70,6 +82,8 @@ def sendData():
 
     # Send file_name to receiver
     # TODO : create progress bar
+    #count = 0
+    isFin = False
     for j in range(len(filename)) :
         seq = 1
         with open(filename[j],'rb') as f :
@@ -80,30 +94,44 @@ def sendData():
             while(data) :
                 arr.append(data)
                 data = f.read(max_data_size)
-
+            
+            total = len(arr)
+            
             for i in range(len(arr)) :
                 if (seq == 1) :
                     dataRcv = Packet(idx,'DATA',seq,arr[i])
                     sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                     ack, addr = sock.recvfrom(max_packet_size)
+                    packet_number = str(ack[0])
                     seq = seq + 1
                 else :
+                    
                     if (j == len(filename)-1 and i == len(arr)-1) :
                         dataRcv = Packet(idx,'FIN',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
+                        packet_number = str(ack[0])
                         if (ack[1] == 0x3) :
-                            print('FIN-ACK from packet ' + str(ack[0]) + ' received')
+                            isFin = True
+                            #print('FIN-ACK from packet ' + str(ack[0]) + ' received\n')
                     else :
                         dataRcv = Packet(idx,'DATA',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
+                        packet_number = str(ack[0])
                         if (ack[1] == 0x1) :
-                            print('ACK from packet ' + str(ack[0]) + ' received')
+                            #print('ACK from packet ' + str(ack[0]) + "/" + str(total) + ' received')
                             seq = seq + 1
+                status = "of packet " + packet_number
+                progress(i+1, total, status=status)
+                        
+                
+        
             
         f.close()
         idx = idx + 1
+    if (isFin):
+        print ("FIN-ACK IS RECEIVED")
 
 def main():
     sendData()
