@@ -20,7 +20,7 @@ def main() :
    while True :
       f = open('result.txt','w')
 
-      data,addr = sock.recvfrom(max_packet_size)
+      data, addr = sock.recvfrom(max_packet_size)
       if data :
          print('File name : ' + data.decode())
          file_name = data.strip()
