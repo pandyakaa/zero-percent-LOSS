@@ -53,12 +53,12 @@ def main():
 
       if (seqVal == 1) :
          filename = bytes(data[8:max_packet_size]).decode().rstrip('\00') + '-result.txt'
-         print('nama file ' + filename)
+         print('Nama file ' + filename)
          f = open(filename,'w')
       else :
          f.write(bytes(data[8:max_packet_size]).decode().rstrip('\x00'))
-         print('Paket ke ' + str(seqVal-1))
          print('File ke ' + str(data[0]))
+         print('Paket ke ' + str(seqVal-1))
 
       if checkSum(data) :
          if data[1] == 0 :
@@ -68,6 +68,7 @@ def main():
             ack = Packet(data[0], 'FIN-ACK', seqVal, ''.encode())
             sock.sendto(ack.getDiagram(),addr)
             f.close()
+            sock.close()
             break
 
 if __name__ == "__main__":
