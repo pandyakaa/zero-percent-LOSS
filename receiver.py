@@ -47,7 +47,10 @@ def receiveData():
 
    sock.bind((localIP,port))
 
+
    while True :
+      #checker = sock.recvfrom(max_packet_size)
+      #print (checker)
       data, addr = sock.recvfrom(max_packet_size)
       seqVal = (data[2] << 8) + data[3]
 
@@ -64,7 +67,9 @@ def receiveData():
          ack = Packet(data[0], 'ACK', seqVal, ''.encode())
          sock.sendto(ack.getDiagram(),addr)
 
-   f.close()
+      if (ack.getType() == 'FIN'):
+         f.close
+   #f.close()
 
 def main():
     res = receiveData()
