@@ -6,9 +6,11 @@
 class Packet :
 
     def __init__(self, p_id, p_type, p_seq, p_data) :
+
+        # Assign atribut dengan parameter
         self.p_id = p_id
         self.p_seq = p_seq
-        self.p_data = p_data.encode()
+        self.p_data = p_data
         self.p_length = len(p_data)
 
         # Assign p_type sesuai dengan type packet
@@ -33,16 +35,23 @@ class Packet :
 
     def printDiagram(self) :
         print(self.diagram)
+        print('ID + Type = ' + str(self.diagram[0]))
+        print('Sequence Number 1 = ' + str(self.diagram[1]))
+        print('Sequence Number 2 = ' + str(self.diagram[2]))
+        print('Length 1 = ' + str(self.diagram[3]))
+        print('Length 2 = ' + str(self.diagram[4]))
+        print('Checksum 1 = ' + str(self.diagram[5]))
+        print('Checksum 2 = ' + str(self.diagram[6]))
     
     def parseAndChecksum(self) :
         max_size_packet = 33000
         diagram = bytearray(max_size_packet)
 
-        diagram[0] = (self.p_type << 4) & 15 + self.p_id # TYPE dan ID
-        diagram[1] = (self.p_seq >> 8 ) & 255 # SEQUENCE NUMBER
+        diagram[0] = ((self.p_type << 4) & 255) + self.p_id
+        diagram[1] = (self.p_seq >> 8) # SEQUENCE NUMBER
         diagram[2] = self.p_seq & 255 # SEQUENCE NUMBER
-        diagram[3] = (self.p_length >> 8) & 255 # CHECKSUM
-        diagram[4] = self.p_length & 255 # CHECKSUM
+        diagram[3] = (self.p_length >> 8) # LENGTH
+        diagram[4] = self.p_length & 255 # LENGTH
 
         i = 7
         for b in self.p_data :

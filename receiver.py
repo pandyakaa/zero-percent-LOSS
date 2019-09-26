@@ -16,26 +16,23 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 def main() :
    port = int(input("Masukkan port yang akan di-bind : "))
    sock.bind((localIP,port))
+   f = open('result.out','w')
+   res = []
 
    while True :
-      f = open('result.txt','w')
-
       data,addr = sock.recvfrom(max_packet_size)
       if data :
          print('File name : ' + data.decode())
          file_name = data.strip()
 
-      count = 1
       while True:
-
          ready = select.select([sock], [], [], timeout)
          if ready[0]:
             data, addr = sock.recvfrom(max_packet_size)
-            f.write(str(count))
-            count += 1
+            print(data)
          else:
             print(file_name.decode() + ' Finish')
             break
-         
+
 if __name__ == "__main__":
    main()
