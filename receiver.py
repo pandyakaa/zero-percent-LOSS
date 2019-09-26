@@ -65,7 +65,7 @@ def main():
             ack = Packet(data[0], 'ACK', seqVal, ''.encode())
             sock.sendto(ack.getDiagram(),addr)
          elif data[1] == 2 :
-            ack = Packet(data[0], 'ACK', seqVal, ''.encode())
+            ack = Packet(data[0], 'FIN-ACK', seqVal, ''.encode())
             sock.sendto(ack.getDiagram(),addr)
             f.close()
             break
