@@ -64,8 +64,8 @@ class Packet :
         max_size_packet = 33000
         diagram = bytearray(max_size_packet)
 
-        diagram[0] = ((self.p_id << 4) & 255) 
-        diagram[1] = ((self.p_type << 4) & 255)
+        diagram[0] = (self.p_id & 255) 
+        diagram[1] = (self.p_type & 255)
         diagram[2] = (self.p_seq >> 8) # SEQUENCE NUMBER
         diagram[3] = self.p_seq & 255 # SEQUENCE NUMBER
         diagram[4] = (self.p_length >> 8) # LENGTH

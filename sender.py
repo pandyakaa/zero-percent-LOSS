@@ -19,24 +19,17 @@ def bindParam():
 
     recv_ip = input("Masukkan IP dari address yang dituju : ")
     recv_port = input("Masukkan port dari address yang dituju : ")
-    file_name = input("Masukkan file yang ingin dikirim : ")
+    count_file = int(input("Masukkan jumlah file yang ingin dikirim : "))
+    filename = []
+    for i in range(count_file) :
+        filename.append(input("Masukkan nama file : "))
 
     # Cast recv_ip to bytes
     recv_ip = recv_ip.encode()
     # Cast recv_port to integer
     recv_port = int(recv_port)
 
-    file_names = file_name.split("/")
-
-    for x in range(len(file_names)):
-        file_names[x] = file_names[x].encode()
-
-    print (len(file_names))
-
-    # Cast file_name  to bytes
-    #file_names = file_name.encode()
-
-    return recv_ip, recv_port, file_names
+    return recv_ip, recv_port, filename
 
 # Fungsi untuk parse ulang diagram
 def parseDiagram(list):
@@ -69,42 +62,39 @@ def sendData():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     # Call bindParam() function
-    recv_ip, recv_port, file_name = bindParam()
-    #file_names = file_name.split("/")
+    recv_ip, recv_port, filename = bindParam()
+
+    idx = 1
 
     # Send file_name to receiver
     # TODO : create progress bar
-    for x in range(len(file_name)):
-        sock.sendto(file_name[x], (recv_ip, recv_port))
-        file_name[x] = file_name[x].decode()
-        print('Sending ' + file_name[x] + ' ...')
-
-        # Read file and send the content
-        with open(file_name[x], 'rb') as f:
+    for file_name in filename :
+        seq = 1
+        with open(file_name,'rb') as f :
             data = f.read(max_data_size)
-            idx = 1
-            seq = 1
 
-            while(data):
-                p = Packet(idx, 'DATA', seq, data)
-                if (sock.sendto(p.getDiagram(), (recv_ip, recv_port))):
-                    data = f.read(max_data_size)
-                    time.sleep(0.02)
-                datarcv, addr = sock.recvfrom(max_data_size+1000)
-                if datarcv:
-                    p_id, p_type, p_seq, p_length, p_data, p_checksum = parseDiagram(
-                        datarcv)
-                    print('ACK from packet ' + str(p_id) + ' Received')
-                seq += 1
-
-        
+            while(data) :
+                if (seq == 1) :
+                    dataRcv = Packet(idx,'DATA',seq,file_name.split('.')[0].encode())
+                    sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                    ack, addr = sock.recvfrom(max_packet_size)
+                    seq = seq + 1
+                else :
+                    dataRcv = Packet(idx,'DATA',seq,data)
+                    sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                    ack, addr = sock.recvfrom(max_packet_size)
+                    if (ack[1] == 0x1) :
+                        print('ACK from packet ' + str(ack[0]) + ' received')
+                        data = f.read(max_data_size)
+                        seq = seq + 1
+                    else :
+                        print('kontol')
+            
         f.close()
-    sock.close()
-
+        idx = idx + 1
 
 def main():
     sendData()
-
 
 if __name__ == "__main__":
     main()
