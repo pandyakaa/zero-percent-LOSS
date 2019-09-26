@@ -67,6 +67,7 @@ def getChecksum(p_id, p_type, p_seq, p_length, p_data):
     diagram[7] = diagram[1] ^ diagram[3] ^ diagram[5] ^ sumOdd
 
     checksum = (diagram[6] << 8) + diagram[7]
+    print (str(checksum) + " cs 1")
     return checksum
 
 # Fungsi receiveData()
@@ -93,6 +94,7 @@ def receiveData():
             print('File name : ' + data.decode())
             file_name = data.decode().strip()
             filename.append(file_name)
+            #print (filename)
 
         # Receive the data
         while True:
@@ -101,6 +103,7 @@ def receiveData():
                 data, addr = sock.recvfrom(max_packet_size)
                 if data:
                     p_id, p_type, p_seq, p_length, p_data, p_checksum = parseDiagram(data)
+                    print (str(p_checksum) + " cs 2")
                     if (p_checksum == getChecksum(p_id, p_type, p_seq, p_length, p_data)):
                         p = Packet(p_id, 'ACK', p_seq, ''.encode())
                         sock.sendto(p.getDiagram(), addr)
@@ -119,7 +122,10 @@ def receiveData():
 
 def main():
     res, filename = receiveData()
-    with open(filename[0], 'wb') as f:
+    #extension = []
+    #extension.append("_result.txt")
+    file = filename[0] + "_result.txt"
+    with open(file, 'wb') as f:
         for i in res:
             for j in i:
                f.write(j)
