@@ -110,32 +110,23 @@ def sendData():
                         dataRcv = Packet(idx,'FIN',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
-                        packet_number = str(ack[0])
-                        if (ack[1] == 0x3) :
-                            isFin = True
-                            #print('FIN-ACK from packet ' + str(ack[0]) + ' received\n')
+                        while (not(ack) or ack[1] != 0x3) :
+                            sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                            ack, addr = sock.recvfrom(max_packet_size)
+                        print('FIN-ACK from packet ' + str(ack[0]) + ' received')
                     else :
                         dataRcv = Packet(idx,'DATA',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
-                        packet_number = str(ack[0])
-                        if (ack[1] == 0x1) :
-                            #print('ACK from packet ' + str(ack[0]) + "/" + str(total) + ' received')
-                            seq = seq + 1
-                status = "of packet " + packet_number
-                progress(i+1, total, status=status)
-                        
-                
-        
-            
+                        while (not(ack) or ack[1] != 0x1) :
+                            sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                            ack, addr = sock.recvfrom(max_packet_size)
+                        print('ACK from packet ' + str(ack[0]) + ' received')
         f.close()
-        idx = idx + 1
-    if (isFin):
-        print ("FIN-ACK IS RECEIVED")
+        idx = idx + 1                
 
 def main():
     sendData()
 
 if __name__ == "__main__":
     main()
-
