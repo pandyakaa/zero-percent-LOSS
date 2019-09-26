@@ -32,7 +32,9 @@ def parseDiagram(list):
 
     p_seq = (list[2] << 8) + list[3]  # Parsing for Packet Sequence
     p_length = (list[4] << 8) + list[5]  # Parsing for Packet Length
-    p_data = bytes(list[8:max_packet_size])  # Parsing for Packet Data
+    p_data = list[8:max_packet_size]  # Parsing for Packet Data
+    p_data = p_data.decode().rstrip('\x00')
+    p_data = p_data.encode()
     p_cheksum = (list[6] << 8) + list[7]
 
     return p_id, p_type, p_seq, p_length, p_data, p_cheksum
@@ -105,7 +107,6 @@ def receiveData():
                         p = Packet(p_id, 'ACK', p_seq, ''.encode())
                         sock.sendto(p.getDiagram(), addr)
                         print('ACK for packet ' + str(p_id) + ' sent')
-                        print(p_seq)
                         res[p_id].append(p_data)
                     else:
                         print('checksum not valid')
@@ -119,7 +120,7 @@ def receiveData():
 
 def main():
     res, filename = receiveData()
-    with open(filename[0], 'wb') as f:
+    with open('result.txt', 'wb') as f:
         for i in res:
             for j in i:
                f.write(j)
