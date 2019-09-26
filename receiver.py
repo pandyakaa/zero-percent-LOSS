@@ -47,7 +47,10 @@ def main():
 
    sock.bind((localIP,port))
 
+
    while True :
+      #checker = sock.recvfrom(max_packet_size)
+      #print (checker)
       data, addr = sock.recvfrom(max_packet_size)
       seqVal = (data[2] << 8) + data[3]
 
