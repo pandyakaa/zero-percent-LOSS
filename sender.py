@@ -122,6 +122,7 @@ def sendData():
                             sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                             ack, addr = sock.recvfrom(max_packet_size)
                         print('ACK from packet ' + str(ack[0]) + ' received')
+                        seq = seq + 1
         f.close()
         idx = idx + 1                
 
