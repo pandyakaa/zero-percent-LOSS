@@ -21,15 +21,17 @@ def main() :
     sock.sendto(file_name.encode(),(recv_ip.encode(),int(recv_port)))
     print('Sending ' + file_name + ' ...')
 
-    f = open(file_name,'r')
+    f = open(file_name,'rb')
     data = f.read(max_data_size)
     idx = 1
+    seq = 0
 
     while(data) :
-        p = Packet(idx, 'DATA', 3, data)
-        if (sock.sendto(p.getDiagram(),(recv_ip.encode(),int(recv_port)))) :
+        p = Packet(idx, 'DATA', seq, data)
+        if (sock.sendto(p.getDiagram(),(recv_ip,int(recv_port)))) :
             data = f.read(max_data_size)
             time.sleep(0.02)
+        seq += 1
 
     sock.close()
     f.close()
