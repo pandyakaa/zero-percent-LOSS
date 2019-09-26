@@ -76,7 +76,7 @@ def sendData():
             data = f.read(max_data_size)
 
             arr = []
-            arr.append(filename[j].split('.')[0].encode())
+            arr.append(filename[j].split('.')[0].encode('latin-1'))
             while(data) :
                 arr.append(data)
                 data = f.read(max_data_size)

@@ -57,7 +57,7 @@ def main():
       if (seqVal == 1) :
          filename = bytes(data[8:max_packet_size]).decode().rstrip('\00') + '-result.txt'
          print('Nama file ' + filename)
-         f = open(filename,'w')
+         f = open(filename,'w', encoding="latin-1")
       else :
          f.write(bytes(data[8:max_packet_size]).decode().rstrip('\x00'))
          print('File ke ' + str(data[0]))
