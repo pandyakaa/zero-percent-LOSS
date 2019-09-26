@@ -92,22 +92,23 @@ def sendData():
                         dataRcv = Packet(idx,'FIN',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
-                        if (ack[1] == 0x3) :
-                            print('FIN-ACK from packet ' + str(ack[0]) + ' received')
+                        while (not(ack) or ack[1] != 0x3) :
+                            sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                            ack, addr = sock.recvfrom(max_packet_size)
+                        print('FIN-ACK from packet ' + str(ack[0]) + ' received')
                     else :
                         dataRcv = Packet(idx,'DATA',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
-                        if (ack[1] == 0x1) :
-                            print('ACK from packet ' + str(ack[0]) + ' received')
-                            seq = seq + 1
-            
+                        while (not(ack) or ack[1] != 0x1) :
+                            sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
+                            ack, addr = sock.recvfrom(max_packet_size)
+                        print('ACK from packet ' + str(ack[0]) + ' received')
         f.close()
-        idx = idx + 1
+        idx = idx + 1                
 
 def main():
     sendData()
 
 if __name__ == "__main__":
     main()
-
