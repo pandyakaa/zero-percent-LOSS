@@ -13,6 +13,8 @@ max_data_size = 32768
 # max_data_size + 2 checksum + 2 length + 2 sequence number + 0.5 type + 0.5 ID + x error
 max_packet_size = 33000
 
+timeout = 5
+
 # Fungsi input IP, port dan filename
 
 def bindParam():
@@ -90,18 +92,15 @@ def sendData():
                         dataRcv = Packet(idx,'FIN',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
-                        while (ack[1] != 0x3) :
-                            sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
-                            ack, addr = sock.recvfrom(max_packet_size)
-                        print('FIN-ACK from packet ' + str(ack[0]) + ' received')
+                        if (ack[1] == 0x3) :
+                            print('FIN-ACK from packet ' + str(ack[0]) + ' received')
                     else :
                         dataRcv = Packet(idx,'DATA',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                         ack, addr = sock.recvfrom(max_packet_size)
-                        while (ack[1] != 0x1) :
-                            sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
-                            ack, addr = sock.recvfrom(max_packet_size)
-                        print('FIN-ACK from packet ' + str(ack[0]) + ' received')
+                        if (ack[1] == 0x1) :
+                            print('ACK from packet ' + str(ack[0]) + ' received')
+                            seq = seq + 1
             
         f.close()
         idx = idx + 1
