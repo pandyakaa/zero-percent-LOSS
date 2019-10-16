@@ -58,7 +58,7 @@ def parseDiagram(list):
     return p_id, p_type, p_seq, p_length, p_data, p_checksum
 
 
-def progress(count, total, status=''):
+def progress(count, total, filename, status=''):
     bar_len = 60
     filled_len = int(round(bar_len * count / float(total)))
 
@@ -96,6 +96,7 @@ def sendData():
                 data = f.read(max_data_size)
             
             total = len(arr)
+            fname = filename[j]
             
             for i in range(len(arr)) :
                 if (seq == 1) :
@@ -123,8 +124,9 @@ def sendData():
                             ack, addr = sock.recvfrom(max_packet_size)
                         #print('ACK from packet ' + str(ack[0]) + ' received')
                         seq = seq + 1
+                progress(i+1, total, fname, status="received")
 
-            progress(i+1, total, status="received")
+            # progress(i+1, total, status="received")
         f.close()
         idx = idx + 1                
 
