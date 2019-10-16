@@ -114,7 +114,7 @@ def sendData():
                         while (not(ack) or ack[1] != 0x3) :
                             sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                             ack, addr = sock.recvfrom(max_packet_size)
-                        print('FIN-ACK from packet ' + str(ack[0]) + ' received')
+                        #print('FIN-ACK from packet ' + str(ack[0]) + ' received')
                     else :
                         dataRcv = Packet(idx,'DATA',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
@@ -122,7 +122,7 @@ def sendData():
                         while (not(ack) or ack[1] != 0x1) :
                             sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                             ack, addr = sock.recvfrom(max_packet_size)
-                        print('ACK from packet ' + str(ack[0]) + ' received')
+                        #print('ACK from packet ' + str(ack[0]) + ' received')
                         seq = seq + 1
                 progress(i+1, total, fname, status="received")
 
