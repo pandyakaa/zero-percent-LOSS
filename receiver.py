@@ -55,7 +55,7 @@ def main():
       seqVal = (data[2] << 8) + data[3]
 
       if (seqVal == 1) :
-         filename = bytes(data[8:max_packet_size]).decode().rstrip('\00') + '-result.txt'
+         filename = bytes(data[8:max_packet_size]).decode().rstrip('\00')
          print('Nama file ' + filename)
          f = open(filename,'wb')
       else :

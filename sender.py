@@ -52,7 +52,7 @@ def parseDiagram(list):
     p_seq = (list[2] << 8) + list[3]  # Parsing for Packet Sequence
     p_length = (list[4] << 8) + list[5]  # Parsing for Packet Length
     p_data = bytes(list[8:max_packet_size+1])  # Parsing for Packet Data
-    p_data = p_data.decode().rstrip('\x00')  # Parsing for Packet Data
+    p_data = p_data.rstrip(b'\x00')  # Parsing for Packet Data
     p_checksum = (list[6] << 8) + list[7]
 
     return p_id, p_type, p_seq, p_length, p_data, p_checksum
@@ -90,7 +90,7 @@ def sendData():
             data = f.read(max_data_size)
 
             arr = []
-            arr.append(filename[j].split('.')[0].encode('latin-1'))
+            arr.append(filename[j].split('.')[0].encode())
             while(data) :
                 arr.append(data)
                 data = f.read(max_data_size)
@@ -113,7 +113,7 @@ def sendData():
                         while (not(ack) or ack[1] != 0x3) :
                             sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                             ack, addr = sock.recvfrom(max_packet_size)
-                        #print('FIN-ACK from packet ' + str(ack[0]) + ' received')
+                        print('FIN-ACK from packet ' + str(ack[0]) + ' received')
                     else :
                         dataRcv = Packet(idx,'DATA',seq,arr[i])
                         sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
@@ -121,7 +121,7 @@ def sendData():
                         while (not(ack) or ack[1] != 0x1) :
                             sock.sendto(dataRcv.getDiagram(),(recv_ip,recv_port))
                             ack, addr = sock.recvfrom(max_packet_size)
-                        #print('ACK from packet ' + str(ack[0]) + ' received')
+                        print('ACK from packet ' + str(ack[0]) + ' received')
                         seq = seq + 1
 
             progress(i+1, total, status="received")
